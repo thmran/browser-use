@@ -17,8 +17,10 @@ async def run_search() -> AgentHistoryList:
         task="Search for a 'browser use' post on the r/LocalLLaMA subreddit and open it.",
         llm=ChatOllama(
             model="qwen2.5:14b-instruct-q4_K_M",
-            num_ctx=32000,
         ),
+        use_vision=False,
+		max_failures=2,
+		max_actions_per_step=1,
     )
 
     result = await agent.run()

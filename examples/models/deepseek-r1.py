@@ -19,9 +19,7 @@ async def run_search():
 	agent = Agent(
 		task=('go to amazon.com, search for laptop, sort by best rating, and give me the price of the first result'),
 		llm=ChatOpenAI(
-			base_url='https://api.deepseek.com/v1',
-			model='deepseek-reasoner',
-			api_key=SecretStr(api_key),
+			
 		),
 		use_vision=False,
 		max_failures=2,

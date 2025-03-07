@@ -1,0 +1,86 @@
+  Scenario: Create a New Book with Chapters and Learning Objectives
+    Given I open the Chrome browser
+    When I navigate to "https://backoffice.prep.tokyo.manabie.io/"
+
+    # Language Change Verification
+    Then I click element containing text "日本語"
+    And I wait until element "#language-switcher-en" is visible
+    And I double-click element "#language-switcher-en"
+    And I verify page contains text "organization" within 5 seconds
+
+    # Organization Login
+    When I enter "lmsv2" into input field with id "organization-id"
+    And I click button containing text "Next"
+
+    # User Authentication
+    Then I wait until element "#username" is visible
+    When I enter "thmtran3005" into input field with id "username"
+    And I enter "123456" into input field with id "password"
+    And I wait 1 second
+    And I click element "button[type='sign in']"
+
+    # Login Verification
+    Then I wait until element "//span[contains(text(),'Real Time Dashboard')]" is visible
+
+    # Navigate to Book Management
+    When I navigate to "https://backoffice.prep.tokyo.manabie.io/syllabus/books"
+    And I wait until element "//button[contains(text(),'Create New Book')]" is visible
+
+    # Create a New Book
+    When I click element "//button[contains(text(),'Create New Book')]"
+    And I wait until element "#book-name-input" is visible
+    Then I generate a random meaningful book name and enter it into input field with id "book-name-input"
+    And I click element "button[type='submit']"
+    And I wait until element "//div[contains(text(),'Book created successfully')]" is visible
+
+    # Create Multiple Chapters
+    Examples:
+      | Chapter Name                                   | Topic Name                           | Learning Objective                               | Question                                                  |
+      | "Chapter 1: Introduction to Automated Testing" | "Topic 1: Basics of Test Automation" | "Understand the fundamentals of test automation" | "What is the primary goal of test automation?"            |
+      | "Chapter 2: Test Frameworks and Tools"         | "Topic 2: Playwright Basics"         | "Learn the key features of Playwright"           | "Which of the following is NOT a feature of Playwright?"  |
+      | "Chapter 3: Writing Effective Test Scripts"    | "Topic 3: Page Object Model"         | "Apply POM in automation testing"                | "Why is the Page Object Model useful in test automation?" |
+
+  Scenario Outline: Add Chapters, Topics, Learning Objectives, and Questions
+    When I click element "//button[contains(text(),'Add Chapter')]"
+    And I wait until element "#chapter-name-input" is visible
+    Then I enter <Chapter Name> into input field with id "chapter-name-input"
+    And I click element "button[type='submit']"
+    And I wait until element "//div[contains(text(),'Chapter added successfully')]" is visible
+
+    When I click element "//button[contains(text(),'Add Topic')]"
+    And I wait until element "#topic-name-input" is visible
+    Then I enter <Topic Name> into input field with id "topic-name-input"
+    And I click element "button[type='submit']"
+    And I wait until element "//div[contains(text(),'Topic added successfully')]" is visible
+
+    When I click element "//button[contains(text(),'Add Learning Objective')]"
+    And I wait until element "#learning-objective-input" is visible
+    Then I enter <Learning Objective> into input field with id "learning-objective-input"
+    And I click element "button[type='submit']"
+    And I wait until element "//div[contains(text(),'Learning Objective added successfully')]" is visible
+
+    # Add a Multiple-Choice Question via Learnosity Integration
+    When I click element "//button[contains(text(),'Add Question')]"
+    And I wait until element "#learnosity-launch" is visible
+    Then I click element "#learnosity-launch"
+    And I wait until Learnosity question editor loads
+    When I select "Multiple Choice" question type in Learnosity
+    And I select "Multiple Choice - Standard" inside "Multiple Choice Group"
+    And I enter question text <Question> into Learnosity editor
+    And I configure answer choices and correct answer
+    And I click "Save" in Learnosity editor
+    And I wait until element "//div[contains(text(),'Question added successfully')]" is visible
+
+    # Verify Book Content
+    Then I verify element "//h1[contains(text(),'Book Details')]" is visible
+    And I verify element "//div[contains(text(),<Chapter Name>)]" is visible
+    And I verify element "//div[contains(text(),<Topic Name>)]" is visible
+    And I verify element "//div[contains(text(),<Learning Objective>)]" is visible
+    And I verify element "//div[contains(text(),<Question>)]" is visible
+
+    # Logout
+    When I click element ".user-profile-menu"
+    Then I wait until element "//li[contains(text(),'Log Out')]" is visible
+    And I click element "//li[contains(text(),'Log Out')]"
+    And I verify current URL contains "/login"
+    And I close browser

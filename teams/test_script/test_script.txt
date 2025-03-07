@@ -1,0 +1,65 @@
+  Scenario: End-to-End Backoffice Test
+    Given I open the Chrome browser
+    When I navigate to "https://backoffice.prep.tokyo.manabie.io/"
+
+    # Language Change Verification
+    Then I click element containing text "日本語"
+    And I wait until element "#language-switcher-en" is visible
+    And I double-click element "#language-switcher-en"
+    And I verify page contains text "Welcome to" within 5 seconds
+
+    # Organization Login
+    When I enter "lmsv2" into input field with id "organization-id"
+    And I click button containing text "Next"
+
+    # User Authentication
+    Then I wait until element "#username" is visible
+    When I enter "thmtran3005" into input field with id "username"
+    And I enter "123456" into input field with id "password"
+    And I wait 1 second
+    And I click element "button[type='sign in']"
+
+    # Login Verification
+    Then I wait until element "//span[contains(text(),'Real Time Dashboard')]" is visible
+    And I verify current URL contains "/syllabus/realtime_dashboard"
+
+    # Message Flow
+    When I click element containing text "Messages"
+    Then I wait until element ".conversation-list" is visible
+
+    # First Message Interaction
+    When I click random element from ".conversation-item"
+    And I wait until element ".message-input" is visible
+    Then I enter combined message:
+      """
+      Test message containing:
+      - LaTeX: \( E = mc^2 \)
+      - Japanese: こんにちは世界
+      - English: Hello World
+      - URL: https://manabie.com
+      - Emoticon: 😊👍
+      """
+    And I click element "button.send-message"
+    Then I verify element ".message-status:contains('Sent')" exists
+
+    # Second Message Interaction (Duplicate?)
+    When I click random element from ".conversation-item"
+    And I wait until element ".message-input" is visible
+    Then I enter combined message:
+      """
+      Secondary test with:
+      - LaTeX: \( \sum_{i=1}^n i = \frac{n(n+1)}{2} \)
+      - Japanese: テストメッセージ
+      - English: Automated Test
+      - URL: https://tokyo.manabie.io
+      - Emoticon: 🚀🌟
+      """
+    And I click element "button.send-message"
+    Then I verify element ".message-status:contains('Sent')" exists
+
+    # Session Termination
+    When I click element ".user-profile-menu"
+    Then I wait until element "//li[contains(text(),'Log Out')]" is visible
+    And I click element "//li[contains(text(),'Log Out')]"
+    And I verify current URL contains "/login-tenant"
+    And I close browser
